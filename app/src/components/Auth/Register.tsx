@@ -6,32 +6,66 @@ import Image from "next/image";
 import FormField from "./Form_field";
 import Button from "@/components/Button";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Register() {
     const [isClient, setIsClient] = useState(false);
     const router = useRouter();
 
+    const [formData, setFormData] = useState({
+        username: '',
+        email: '',
+        password: ''
+    });
+
+    const handleChange = (field: string, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
     const handleSignInClick = () => {
         router.push('/login');
     };
 
-    const handleSignUpClick = () => {
-        router.push('/');
+    const handleSignUpClick = async () => {
+        try {
+            const res = await fetch('http://localhost:4000/auth/register', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    name: formData.username,
+                    email: formData.email,
+                    password: formData.password
+                })
+            });
+
+            if (res.ok) {
+                router.push('/dashboard');
+            } else {
+                const errorData = await res.json();
+                alert("Registration failed: " + errorData.message);
+            }
+        } catch (err) {
+            console.error("Registration error:", err);
+            alert("Unexpected error during registration.");
+        }
     };
 
     useEffect(() => {
-        setIsClient(true);  // Ensures this only runs on the client
+        setIsClient(true);
     }, []);
 
     if (!isClient) {
-        return null;  // Don't render anything until it's client-side
+        return null;
     }
 
     return (
         <div className="grid grid-cols-3 grid-rows-3 h-screen w-screen overflow-hidden items-center">
-            <a href="/" className="m-[1rem]">
+            <Link href="/" className="m-[1rem]">
                 <Image src={logo} alt="logo" className="invert-100 w-83" />
-            </a>
+            </Link>
 
             <div className="col-start-1 row-start-2 col-span-2 flex flex-col justify-center m-22">
                 <p className="text-7xl">Login into</p>
@@ -40,11 +74,11 @@ export default function Register() {
             </div>
 
             <div className="bg-[#1A2E40] col-start-2 row-start-2 col-span-2 row-span-2 rounded-[15px] h-[40rem] w-[45rem] p-[3rem] relative top-[-5rem] left-[25rem]">
-                <FormField type="text" label="Username" />
+                <FormField type="text" label="Username" onChange={(val) => handleChange("username", val)} />
                 <br />
-                <FormField type="text" label="Email" />
+                <FormField type="text" label="Email" onChange={(val) => handleChange("email", val)} />
                 <br />
-                <FormField type="password" label="Password" />
+                <FormField type="password" label="Password" onChange={(val) => handleChange("password", val)} />
 
                 <div className="flex items-center justify-between my-15">
                     <p className="text-2xl">

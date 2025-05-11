@@ -1,47 +1,85 @@
 'use client'
 
 import Chart from "../Dashboard/Chart";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const sampleData = [
-    { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
-    { name: 'Page B', uv: 3000, pv: 1398, amt: 2210 },
-    { name: 'Page C', uv: 2000, pv: 9800, amt: 2290 },
-    { name: 'Page D', uv: 2780, pv: 3908, amt: 2000 },
-    { name: 'Page E', uv: 1890, pv: 4800, amt: 2181 },
-    { name: 'Page F', uv: 2390, pv: 3800, amt: 2500 },
-    { name: 'Page G', uv: 3490, pv: 4300, amt: 2100 },
-];
-const sampleData2 = [
-    { name: 'Item A', uv: 7000, pv: 4400, amt: 3200 },
-    { name: 'Item B', uv: 3300, pv: 1200, amt: 2600 },
-    { name: 'Item C', uv: 2100, pv: 9000, amt: 2100 },
-    { name: 'Item D', uv: 4900, pv: 3800, amt: 2700 },
-    { name: 'Item E', uv: 3600, pv: 4400, amt: 2300 },
-    { name: 'Item F', uv: 4100, pv: 5300, amt: 2500 },
-    { name: 'Item G', uv: 5600, pv: 6300, amt: 2800 },
-];
+interface Currency {
+    code: string;
+    rate: number;
+}
 
-const currencies = [
-    { code: "USD", rate: 4.0 },
-    { code: "EUR", rate: 4.5 },
-    { code: "GBP", rate: 5.2 },
-    { code: "PLN", rate: 1.0 }
-];
+interface BackendCurrency {
+    code: string;
+    rates: { bid: number; ask: number; date: string }[];
+}
 
 export default function Compare() {
-    const [selectedCurrencyL, setSelectedCurrencyL] = useState(currencies[0]);
-    const [selectedCurrencyR, setSelectedCurrencyR] = useState(currencies[1]);
-    const [selectedDataL, setSelectedDataL] = useState(sampleData);
-    const [selectedDataR, setSelectedDataR] = useState(sampleData2);
+    const [currencies, setCurrencies] = useState<Currency[]>([]);
+    const [selectedCurrencyL, setSelectedCurrencyL] = useState<Currency | null>(null);
+    const [selectedCurrencyR, setSelectedCurrencyR] = useState<Currency | null>(null);
+    const [selectedDataL, setSelectedDataL] = useState<ChartData[]>([]);
+    const [selectedDataR, setSelectedDataR] = useState<ChartData[]>([]);
 
-    const handleCurrencyChange = (currencyCode: string, setSelectedCurrency: Function, setSelectedData: Function) => {
-        const currency = currencies.find((c) => c.code === currencyCode);
-        if (currency) {
-            setSelectedCurrency(currency);
-            setSelectedData(currency.code === "USD" || currency.code === "GBP" ? sampleData : sampleData2);
+    useEffect(() => {
+        const fetchCurrencies = async () => {
+            try {
+                const response = await fetch("/currency");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch currencies");
+                }
+                const data: BackendCurrency[] = await response.json();
+                const fetchedCurrencies = data.map((currency) => ({
+                    code: currency.code,
+                    rate: currency.rates[0]?.bid || 0,
+                }));
+                setCurrencies(fetchedCurrencies);
+                if (fetchedCurrencies.length > 0) {
+                    setSelectedCurrencyL(fetchedCurrencies[0]);
+                    setSelectedCurrencyR(fetchedCurrencies[1] || fetchedCurrencies[0]);
+                }
+            } catch (error) {
+                console.error("Error fetching currencies:", error);
+            }
+        };
+
+        fetchCurrencies();
+    }, []);
+
+    interface ChartData {
+        name: string;
+        pv: number;
+        uv: number;
+    }
+
+    const fetchChartData = async (currencyCode: string, setSelectedData: (data: ChartData[]) => void) => {
+        try {
+            const response = await fetch(`/currency/${currencyCode}`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch chart data");
+            }
+            const data: BackendCurrency = await response.json();
+            const chartData = data.rates.map((rate) => ({
+                name: rate.date,
+                pv: rate.bid,
+                uv: rate.ask,
+            }));
+            setSelectedData(chartData);
+        } catch (error) {
+            console.error("Error fetching chart data:", error);
         }
     };
+
+    useEffect(() => {
+        if (selectedCurrencyL) {
+            fetchChartData(selectedCurrencyL.code, setSelectedDataL);
+        }
+    }, [selectedCurrencyL]);
+
+    useEffect(() => {
+        if (selectedCurrencyR) {
+            fetchChartData(selectedCurrencyR.code, setSelectedDataR);
+        }
+    }, [selectedCurrencyR]);
 
     return (
         <div className="p-5 h-full">
@@ -50,8 +88,11 @@ export default function Compare() {
                     <p className="text-white text-4xl font-bold mb-5">Currency insight (Left)</p>
                     <select
                         className="p-2 border rounded-md bg-[#1A2E40] mt-2"
-                        value={selectedCurrencyL.code}
-                        onChange={(e) => handleCurrencyChange(e.target.value, setSelectedCurrencyL, setSelectedDataL)}
+                        value={selectedCurrencyL?.code || ""}
+                        onChange={(e) => {
+                            const currency = currencies.find((c) => c.code === e.target.value);
+                            if (currency) setSelectedCurrencyL(currency);
+                        }}
                     >
                         {currencies.map((currency) => (
                             <option key={currency.code} value={currency.code}>
@@ -68,8 +109,11 @@ export default function Compare() {
                     <p className="text-white text-4xl font-bold mb-5">Currency insight (Right)</p>
                     <select
                         className="p-2 border rounded-md bg-[#1A2E40] mt-2"
-                        value={selectedCurrencyR.code}
-                        onChange={(e) => handleCurrencyChange(e.target.value, setSelectedCurrencyR, setSelectedDataR)}
+                        value={selectedCurrencyR?.code || ""}
+                        onChange={(e) => {
+                            const currency = currencies.find((c) => c.code === e.target.value);
+                            if (currency) setSelectedCurrencyR(currency);
+                        }}
                     >
                         {currencies.map((currency) => (
                             <option key={currency.code} value={currency.code}>

@@ -1,8 +1,13 @@
-﻿import React from "react";
+﻿import React, { useEffect, useState } from "react";
 
 interface Currency {
     code: string;
     rate: number;
+}
+
+interface BackendCurrency {
+    code: string;
+    rates: { bid: number; ask: number; date: string }[];
 }
 
 interface ConvertedCurrencyProps {
@@ -12,18 +17,34 @@ interface ConvertedCurrencyProps {
     setSelectedCurrency: React.Dispatch<React.SetStateAction<Currency>>;
 }
 
-const currencies: Currency[] = [
-    { code: "USD", rate: 4.0 },
-    { code: "EUR", rate: 4.5 },
-    { code: "GBP", rate: 5.2 },
-    { code: "PLN", rate: 1.0 },
-];
-
 export default function ConvertedCurrency({
                                               amount,
                                               selectedCurrency,
                                               setSelectedCurrency,
                                           }: ConvertedCurrencyProps) {
+    const [currencies, setCurrencies] = useState<Currency[]>([]);
+
+    useEffect(() => {
+        const fetchCurrencies = async () => {
+            try {
+                const response = await fetch("/currency");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch currencies");
+                }
+                const data: BackendCurrency[] = await response.json();
+                const fetchedCurrencies = data.map((currency) => ({
+                    code: currency.code,
+                    rate: currency.rates[0]?.bid || 0,
+                }));
+                setCurrencies(fetchedCurrencies);
+            } catch (error) {
+                console.error("Error fetching currencies:", error);
+            }
+        };
+
+        fetchCurrencies();
+    }, []);
+
     return (
         <div className="w-96 h-80 max-w-sm p-5 bg-[#1A2E40] rounded-xl flex flex-col justify-center shadow-md space-y-8">
             <label className="block text-white">Select currency:</label>
