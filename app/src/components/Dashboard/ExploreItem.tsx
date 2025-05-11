@@ -3,7 +3,7 @@
         <li
             className="group relative flex items-center justify-center gap-2 cursor-pointer rounded-[15px] w-auto h-[4.8rem] bg-blue-400 overflow-hidden"
         >
-            <img src={icon} alt={title} className="h-5 w-5" />
+            {icon}
             <h1 className="text-lg font-semibold">{title}</h1>
 
             <div

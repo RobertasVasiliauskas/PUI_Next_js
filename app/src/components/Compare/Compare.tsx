@@ -1,5 +1,7 @@
-import Chart from "../Dashboard/Chart.jsx";
-import {useState} from "react";
+'use client'
+
+import Chart from "../Dashboard/Chart";
+import { useState } from "react";
 
 const sampleData = [
     { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
@@ -21,11 +23,11 @@ const sampleData2 = [
 ];
 
 const currencies = [
-    {code: "USD", rate: 4.0},
-    {code: "EUR", rate: 4.5},
+    { code: "USD", rate: 4.0 },
+    { code: "EUR", rate: 4.5 },
     { code: "GBP", rate: 5.2 },
     { code: "PLN", rate: 1.0 }
-]
+];
 
 export default function Compare() {
     const [selectedCurrencyL, setSelectedCurrencyL] = useState(currencies[0]);
@@ -33,41 +35,23 @@ export default function Compare() {
     const [selectedDataL, setSelectedDataL] = useState(sampleData);
     const [selectedDataR, setSelectedDataR] = useState(sampleData2);
 
-    const handleCurrencyChangeL = (e) => {
-        const currency = currencies.find((c) => c.code === e.target.value);
-
-
-        if (currency.code === "USD" || currency.code === "GBP") {
-            setSelectedDataL(sampleData);
-        } else {
-            setSelectedDataL(sampleData2);
-        }
-    };
-    const handleCurrencyChangeR = (e) => {
-        const currency = currencies.find((c) => c.code === e.target.value);
-
-
-        if (currency.code === "USD" || currency.code === "GBP") {
-            setSelectedDataR(sampleData);
-        } else {
-            setSelectedDataR(sampleData2);
+    const handleCurrencyChange = (currencyCode: string, setSelectedCurrency: Function, setSelectedData: Function) => {
+        const currency = currencies.find((c) => c.code === currencyCode);
+        if (currency) {
+            setSelectedCurrency(currency);
+            setSelectedData(currency.code === "USD" || currency.code === "GBP" ? sampleData : sampleData2);
         }
     };
 
     return (
-        <div className="p-5 h-full ">
-
+        <div className="p-5 h-full">
             <div className="flex justify-between mb-8">
-                <div className="flex flex-col w-[48%] 100%">
+                <div className="flex flex-col w-[48%]">
                     <p className="text-white text-4xl font-bold mb-5">Currency insight (Left)</p>
                     <select
                         className="p-2 border rounded-md bg-[#1A2E40] mt-2"
                         value={selectedCurrencyL.code}
-                        onChange={(e) => {
-                            const currency = currencies.find((c) => c.code === e.target.value);
-                            setSelectedCurrencyL(currency);
-                            handleCurrencyChangeL(e)
-                        }}
+                        onChange={(e) => handleCurrencyChange(e.target.value, setSelectedCurrencyL, setSelectedDataL)}
                     >
                         {currencies.map((currency) => (
                             <option key={currency.code} value={currency.code}>
@@ -80,16 +64,12 @@ export default function Compare() {
                     </div>
                 </div>
 
-                <div className="flex flex-col w-[48%] h-[100%]">
+                <div className="flex flex-col w-[48%]">
                     <p className="text-white text-4xl font-bold mb-5">Currency insight (Right)</p>
                     <select
                         className="p-2 border rounded-md bg-[#1A2E40] mt-2"
                         value={selectedCurrencyR.code}
-                        onChange={(e) => {
-                            const currency = currencies.find((c) => c.code === e.target.value);
-                            setSelectedCurrencyR(currency);
-                            handleCurrencyChangeR(e)
-                        }}
+                        onChange={(e) => handleCurrencyChange(e.target.value, setSelectedCurrencyR, setSelectedDataR)}
                     >
                         {currencies.map((currency) => (
                             <option key={currency.code} value={currency.code}>
@@ -102,8 +82,6 @@ export default function Compare() {
                     </div>
                 </div>
             </div>
-
         </div>
     );
-
 }

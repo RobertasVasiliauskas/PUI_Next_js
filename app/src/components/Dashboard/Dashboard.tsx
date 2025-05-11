@@ -1,6 +1,6 @@
-import Carousel from "./Carousel.jsx"
-import ExploreList from "./ExploreList.jsx"
-import Chart from "./Chart.jsx"
+import Carousel from "./Carousel"
+import ExploreList from "./ExploreList"
+import Chart from "./Chart"
 
 const sampleData = [
     { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },

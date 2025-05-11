@@ -1,6 +1,8 @@
+'use client'
+
 import { useState } from "react";
-import CurrencyConverter from "./CurrencyConverter.jsx";
-import ConvertedCurrency from "./ConvertedCurrency.jsx";
+import CurrencyConverter from "./CurrencyConverter";
+import ConvertedCurrency from "./ConvertedCurrency";
 
 export default function Convert() {
     const [amountL, setAmountL] = useState(0);
