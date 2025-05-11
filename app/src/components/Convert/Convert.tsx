@@ -4,14 +4,20 @@ import { useState } from "react";
 import CurrencyConverter from "./CurrencyConverter";
 import ConvertedCurrency from "./ConvertedCurrency";
 
+interface Currency {
+    code: string;
+    rate: number;
+}
+
 export default function Convert() {
-    const [amountL, setAmountL] = useState(0);
-    const [amountR, setAmountR] = useState(0);
-    const [selectedCurrencyL, setSelectedCurrencyL] = useState({ code: "USD", rate: 4.0 });
-    const [selectedCurrencyR, setSelectedCurrencyR] = useState({ code: "EUR", rate: 4.5 });
-    const handleConvertClick = () => {
-        const convertedAmount = (parseFloat(amountL) * selectedCurrencyL.rate) / selectedCurrencyR.rate;
-        setAmountR(isNaN(convertedAmount) ? 0 : convertedAmount.toFixed(2));
+    const [amountL, setAmountL] = useState<number>(0);
+    const [amountR, setAmountR] = useState<number>(0);
+    const [selectedCurrencyL, setSelectedCurrencyL] = useState<Currency>({ code: "USD", rate: 4.0 });
+    const [selectedCurrencyR, setSelectedCurrencyR] = useState<Currency>({ code: "EUR", rate: 4.5 });
+
+    const handleConvertClick = (): void => {
+        const convertedAmount = (amountL * selectedCurrencyL.rate) / selectedCurrencyR.rate;
+        setAmountR(isNaN(convertedAmount) ? 0 : parseFloat(convertedAmount.toFixed(2)));
     };
 
     return (

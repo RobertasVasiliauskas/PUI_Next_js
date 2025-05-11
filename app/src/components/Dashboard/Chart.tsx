@@ -3,7 +3,15 @@
 import React, { PureComponent } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-export default class Chart extends PureComponent {
+interface ChartProps {
+    data: Array<{
+        name: string;
+        pv: number;
+        uv: number;
+    }>;
+}
+
+export default class Chart extends PureComponent<ChartProps> {
     render() {
         return (
             <ResponsiveContainer width="100%" height="100%">

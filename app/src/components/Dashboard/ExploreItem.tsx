@@ -1,4 +1,10 @@
-﻿export default function ExploreItem({ icon, title }) {
+﻿'use client';
+interface ExploreItemProps {
+    icon: React.ReactNode;
+    title: string;
+}
+
+export default function ExploreItem({ icon, title }: ExploreItemProps) {
     return (
         <li
             className="group relative flex items-center justify-center gap-2 cursor-pointer rounded-[15px] w-auto h-[4.8rem] bg-blue-400 overflow-hidden"
