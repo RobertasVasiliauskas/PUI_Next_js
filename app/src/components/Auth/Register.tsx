@@ -14,10 +14,12 @@ export default function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [submitting, setSubmitting] = useState(false);
     const router = useRouter();
 
     const handleSignUp = async () => {
         setError("");
+        setSubmitting(true);
 
         try {
             const payload = {
@@ -53,6 +55,8 @@ export default function Register() {
         } catch (err) {
             setError("An error occurred. Please try again.");
             console.error("Error registering:", err);
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -71,7 +75,7 @@ export default function Register() {
             </Link>
 
             <div className="col-start-1 row-start-2 col-span-2 flex flex-col justify-center m-[5.5rem]">
-                <p className="text-7xl">Login into</p>
+                <p className="text-7xl">Register for</p>
                 <p className="text-7xl">your account</p>
                 <p className="text-2xl py-4">Make currency tracking easy peasy</p>
             </div>
@@ -98,11 +102,13 @@ export default function Register() {
                     </p>
                     <Button
                         onClick={handleSignUp}
-                        text="Register"
+                        text={submitting ? "Registering..." : "Register"}
                         className="text-6xl text-primary px-4 py-2 rounded-[15px] border border-black"
+                        disabled={submitting}
                     />
                 </div>
             </div>
         </div>
     );
 }
+

@@ -22,6 +22,10 @@ async function getUserFromAuthCookie() {
     if (!token) return null;
 
     try {
+        if (!process.env.JWT_SECRET) {
+            console.error('JWT_SECRET is not set');
+            return null;
+        }
         return jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
     } catch (err) {
         console.error('Invalid JWT', err);

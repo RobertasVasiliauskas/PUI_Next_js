@@ -54,7 +54,7 @@ export default function Dashboard() {
                     <h1 className="text-center text-4xl font-bold mb-6 text-white">
                         Your Currencies
                     </h1>
-                    <div className="relative w-[95%] min-h-[180px] flex items-center justify-center bg-[#1A2E40] rounded-lg">
+                    <div className="relative w-[95%] min-h-[200px] flex items-center justify-center bg-[#1A2E40] rounded-lg">
                         <p className="text-white text-xl text-center p-8">
                             You are not following any currencies yet. This space will be used for your personal currency carousel.
                         </p>
