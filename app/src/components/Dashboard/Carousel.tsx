@@ -18,7 +18,7 @@ export default function CurrencyCarousel({
             <h1 className="text-center text-4xl font-bold mb-6 text-white">
                 Your Currencies
             </h1>
-            <div className="relative w-[95%] min-h-[180px]">
+            <div className="relative w-[95%] min-h-[170px]">
                 {followedCurrencies.length === 0 ? (
                     <div className="text-white text-center py-8 w-full">No currencies followed.</div>
                 ) : (

@@ -1,7 +1,6 @@
 ﻿'use client';
 
 import React from 'react';
-
 interface ExploreItemProps {
     icon: React.ReactNode;
     title: string;
@@ -45,7 +44,6 @@ export default function ExploreItem({
             {icon}
             <h1 className="text-lg font-semibold">{title}</h1>
 
-            {/* Use button for accessibility */}
             <button
                 type="button"
                 className="absolute top-0 right-0 h-full w-[33%] flex items-center justify-center gap-2 bg-[#9D5C63] text-white
