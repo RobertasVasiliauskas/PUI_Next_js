@@ -1,60 +1,103 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from "react";
-import logo from "../../../public/logo.svg";
+import {useEffect, useState} from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import FormField from "./Form_field";
 import Button from "@/components/Button";
-import { useRouter } from "next/navigation";
 
 export default function Register() {
     const [isClient, setIsClient] = useState(false);
+
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
     const router = useRouter();
 
-    const handleSignInClick = () => {
-        router.push('/login');
-    };
+    const handleSignUp = async () => {
+        setError("");
 
-    const handleSignUpClick = () => {
-        router.push('/');
+        try {
+            const payload = {
+                name: username.trim(),
+                email: email.trim(),
+                password: password.trim(),
+            };
+
+            const response = await fetch("http://localhost:3001/auth/register", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify(payload),
+            });
+
+            let result;
+            const contentType = response.headers.get("content-type");
+
+            if (contentType && contentType.includes("application/json")) {
+                result = await response.json();
+            } else {
+                result = {};
+            }
+
+            if (response.ok) {
+                router.push("/dashboard");
+            } else {
+                setError(result?.error || "Registration failed");
+            }
+        } catch (err) {
+            setError("An error occurred. Please try again.");
+            console.error("Error registering:", err);
+        }
     };
 
     useEffect(() => {
-        setIsClient(true);  // Ensures this only runs on the client
+        setIsClient(true);
     }, []);
 
     if (!isClient) {
-        return null;  // Don't render anything until it's client-side
+        return null;
     }
 
     return (
         <div className="grid grid-cols-3 grid-rows-3 h-screen w-screen overflow-hidden items-center">
-            <a href="/" className="m-[1rem]">
-                <Image src={logo} alt="logo" className="invert-100 w-83" />
-            </a>
+            <Link href="/" className="m-[1rem]">
+                <Image src="/logo.svg" alt="logo" width={132} height={50} className="invert-100 w-83" />
+            </Link>
 
-            <div className="col-start-1 row-start-2 col-span-2 flex flex-col justify-center m-22">
+            <div className="col-start-1 row-start-2 col-span-2 flex flex-col justify-center m-[5.5rem]">
                 <p className="text-7xl">Login into</p>
                 <p className="text-7xl">your account</p>
                 <p className="text-2xl py-4">Make currency tracking easy peasy</p>
             </div>
 
             <div className="bg-[#1A2E40] col-start-2 row-start-2 col-span-2 row-span-2 rounded-[15px] h-[40rem] w-[45rem] p-[3rem] relative top-[-5rem] left-[25rem]">
-                <FormField type="text" label="Username" />
+                <FormField type="text" label="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
                 <br />
-                <FormField type="text" label="Email" />
+                <FormField type="email" label="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
                 <br />
-                <FormField type="password" label="Password" />
+                <FormField type="password" label="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
 
-                <div className="flex items-center justify-between my-15">
+                {error && (
+                    <p className="text-red-500 text-lg my-4">
+                        {error}
+                    </p>
+                )}
+
+                <div className="flex items-center justify-between my-[3.75rem]">
                     <p className="text-2xl">
                         Already have an account?
-                        <a className="text-[#362ED4] underline ml-2 cursor-pointer" onClick={handleSignInClick}>
+                        <Link href="/login" className="text-[#362ED4] underline ml-2 cursor-pointer">
                             Sign in
-                        </a>
+                        </Link>
                     </p>
                     <Button
-                        onClick={handleSignUpClick}
+                        onClick={handleSignUp}
                         text="Register"
                         className="text-6xl text-primary px-4 py-2 rounded-[15px] border border-black"
                     />

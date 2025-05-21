@@ -1,10 +1,9 @@
-'use client'
-
-import { usePathname } from 'next/navigation';
-import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import Header from '@/components/Header/Header.tsx';
+import Header from '@/components/Header/Header';
+import UserProvider from '@/components/UserProvider';
+import jwt from 'jsonwebtoken';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -15,23 +14,36 @@ const geistMono = Geist_Mono({
     variable: '--font-geist-mono',
     subsets: ['latin'],
 });
-export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
-    children: React.ReactNode;
-}>) {
-    const pathname = usePathname();
 
-    // Hide header on /login and /register pages
-    const hideHeader = pathname === '/login' || pathname === '/register';
+async function getUserFromAuthCookie() {
+    const cookie = await cookies();
+    const token = cookie.get('auth')?.value;
+
+    if (!token) return null;
+
+    try {
+        return jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+    } catch (err) {
+        console.error('Invalid JWT', err);
+        return null;
+    }
+}
+
+export default async function RootLayout({
+                                             children,
+                                         }: {
+    children: React.ReactNode;
+}) {
+    const user = await getUserFromAuthCookie();
+    const isAuthenticated = !!user;
 
     return (
         <html lang="en">
-        <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-        {!hideHeader && <Header />} {/* Conditionally render Header */}
-        {children}
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <UserProvider user={user}>
+            <Header isAuthenticated={isAuthenticated} />
+            {children}
+        </UserProvider>
         </body>
         </html>
     );

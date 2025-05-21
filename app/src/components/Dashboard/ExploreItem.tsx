@@ -1,28 +1,61 @@
 ﻿'use client';
+
+import React from 'react';
+
 interface ExploreItemProps {
     icon: React.ReactNode;
     title: string;
+    followedCurrencies: string[];
+    refreshFollowedCurrencies: () => void;
 }
 
-export default function ExploreItem({ icon, title }: ExploreItemProps) {
+export default function ExploreItem({
+                                        icon,
+                                        title,
+                                        followedCurrencies,
+                                        refreshFollowedCurrencies,
+                                    }: ExploreItemProps) {
+    const isFollowed = followedCurrencies.includes(title.toLowerCase());
+
+    async function handleFollowClick() {
+        const url = 'http://localhost:3001/user/followed';
+        const method = isFollowed ? 'DELETE' : 'POST';
+
+        try {
+            await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ currency: title }),
+            });
+
+            refreshFollowedCurrencies();
+        } catch (error) {
+            console.error(`Error ${isFollowed ? 'unfollowing' : 'following'} the currency`, error);
+        }
+    }
+
     return (
         <li
-            className="group relative flex items-center justify-center gap-2 cursor-pointer rounded-[15px] w-auto h-[4.8rem] bg-blue-400 overflow-hidden"
+            className="group relative flex items-center justify-center gap-2 cursor-pointer rounded-[15px] w-auto h-[4.8rem] bg-[#1A2E40] border-2 border-white-600 border-solid overflow-hidden"
         >
             {icon}
             <h1 className="text-lg font-semibold">{title}</h1>
 
             <div
-                className="absolute top-0 right-0 h-full w-[33%] flex items-center justify-center gap-2 bg-blue-600 text-white
+                className="absolute top-0 right-0 h-full w-[33%] flex items-center justify-center gap-2 bg-[#9D5C63] text-white
                            transform translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-in-out"
+                onClick={handleFollowClick}
             >
-                <p className="text-base">Follow</p>
+                <p className="text-base">{isFollowed ? 'Unfollow' : 'Follow'}</p>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
+                    fill={isFollowed ? 'red' : 'white'}
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
-                    stroke="currentColor"
                     className="w-6 h-6"
                 >
                     <path

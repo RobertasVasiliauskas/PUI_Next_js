@@ -9,10 +9,49 @@ import Button from "@/components/Button";
 
 export default function Login() {
     const [isClient, setIsClient] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
     const router = useRouter();
 
-    const handleSignInClick = () => {
-        router.push('/');
+    const handleSignInClick = async () => {
+
+        setError("");
+
+        try {
+            const payload = {
+                email: email.trim(),
+                password: password.trim(),
+            };
+
+            const response = await fetch("http://localhost:3001/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+        },
+                credentials: "include",
+                body: JSON.stringify(payload),
+            });
+
+            let result;
+            const contentType = response.headers.get("content-type");
+
+            if (contentType && contentType.includes("application/json")) {
+                result = await response.json();
+            } else {
+                result = {};
+            }
+
+            if (response.ok) {
+                router.push("/dashboard");
+            } else {
+                setError(result?.error || "Login failed");
+            }
+        } catch (err) {
+            setError("An error occurred. Please try again.");
+            console.error("Error registering:", err);
+        }
     };
 
     const handleSignUpClick = () => {
@@ -20,11 +59,11 @@ export default function Login() {
     };
 
     useEffect(() => {
-        setIsClient(true);  // Ensures this only runs on the client
+        setIsClient(true);
     }, []);
 
     if (!isClient) {
-        return null;  // Don't render anything until it's client-side
+        return null;
     }
 
     return (
@@ -40,9 +79,15 @@ export default function Login() {
             </div>
 
             <div className="bg-[#1A2E40] col-start-2 row-start-2 col-span-2 row-span-2 rounded-[15px] h-[30rem] w-[45rem] m-[25rem] p-[3rem]">
-                <FormField type="text" label="Email" />
+                <FormField type="text" label="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
                 <br />
-                <FormField type="password" label="Password" />
+                <FormField type="password" label="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+
+                {error && (
+                    <p className="text-red-500 text-lg my-4">
+                        {error}
+                    </p>
+                )}
 
                 <div className="flex items-center justify-between my-15">
                     <p className="text-2xl">

@@ -1,20 +1,24 @@
-type FormFieldProps = {
-    label: string;
-    type: string;
-};
+import React from "react";
 
-export default function FormField({ label, type }: FormFieldProps) {
+interface FormFieldProps {
+    type: string;
+    label: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const FormField: React.FC<FormFieldProps> = ({ type, label, value, onChange }) => {
     return (
         <div>
-            <label className="text-3xl">
-                {label}
-            </label>
+            <label className="block text-xl mb-2">{label}</label>
             <input
-                name={label.toLowerCase()}
                 type={type}
-                className="block mt-2 border border-black rounded-[5px] w-full h-[5rem] text-4xl"
-                placeholder={`Enter your ${label.toLowerCase()}`}
+                value={value}
+                onChange={onChange}
+                className="w-full p-2 border rounded"
             />
         </div>
     );
-}
+};
+
+export default FormField;
