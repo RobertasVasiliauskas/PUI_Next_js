@@ -37,7 +37,7 @@ export default function CurrencyCarousel({
                     {followedCurrencies.map((currency, index) => (
                         <SwiperSlide
                             key={index}
-                            className="!h-[200px] bg-[#1A2E40] flex justify-center items-center rounded-lg text-center"
+                            className="!h-[180px] bg-[#1A2E40] flex justify-center items-center rounded-lg text-center"
                         >
                             <h1 className="text-white text-2xl font-semibold flex items-center justify-center h-full w-full">
                                 {currency}
