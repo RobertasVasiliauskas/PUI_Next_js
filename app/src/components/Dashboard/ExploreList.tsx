@@ -50,6 +50,12 @@ export default function ExploreList({
                     followedCurrencies={followedCurrencies}
                     refreshFollowedCurrencies={refreshFollowedCurrencies}
                 />
+                <ExploreItem
+                    title="cad"
+                    icon={<Image src={icon_compare} alt="YEN Icon" />}
+                    followedCurrencies={followedCurrencies}
+                    refreshFollowedCurrencies={refreshFollowedCurrencies}
+                />
             </ul>
         </div>
     );
