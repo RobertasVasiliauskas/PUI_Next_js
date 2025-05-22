@@ -89,7 +89,7 @@ export default function CurrencyStats({ title }: CurrencyStatsProps) {
                     ))}
                 </select>
             </div>
-            <Chart data={chartData} />
+            <Chart data={chartData} singleCurrencyMode={true}/>
         </div>
     );
 }
