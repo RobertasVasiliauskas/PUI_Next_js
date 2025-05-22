@@ -5,9 +5,16 @@ interface CurrencyStatsProps {
     title: string;
 }
 
+interface ChartData {
+    name: string;
+    bid: number;
+    ask: number;
+}
+
 async function fetchCurrencyData(currency: string, date?: string, startDate?: string, endDate?: string) {
     try {
-        let url = "";
+        let url: string;
+
         if (date) {
             url = `http://localhost:3001/currency/${currency}?date=${date}`;
         } else if (startDate && endDate) {
@@ -17,7 +24,7 @@ async function fetchCurrencyData(currency: string, date?: string, startDate?: st
         }
 
         const response = await fetch(url);
-        if (!response.ok) throw new Error('Network response was not ok');
+        if (!response.ok) console.log(response);
 
         return await response.json();
     } catch (error) {
@@ -28,7 +35,7 @@ async function fetchCurrencyData(currency: string, date?: string, startDate?: st
 
 export default function CurrencyStats({ title }: CurrencyStatsProps) {
     const [period, setPeriod] = useState<string>("1w");
-    const [chartData, setChartData] = useState<any[]>([]);
+    const [chartData, setChartData] = useState<ChartData[]>([]); // Use proper type for `chartData`
 
     const periodInDays: Record<string, number> = {
         "1w": 7,
