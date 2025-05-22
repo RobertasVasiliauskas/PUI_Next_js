@@ -7,7 +7,6 @@ import React, { useState } from 'react';
 import { getCurrencyIcon } from '@/lib/currencyIcons';
 
 const allCurrencies = [
-    { title: "PLN" },
     { title: "USD" },
     { title: "EUR" },
     { title: "GBP" },

@@ -9,9 +9,11 @@ import 'swiper/css/pagination';
 import { motion } from 'framer-motion';
 
 export default function CurrencyCarousel({
-    followedCurrencies,
-}: {
+                                             followedCurrencies,
+                                             onCurrencySelect,
+                                         }: {
     followedCurrencies: string[];
+    onCurrencySelect: (currency: string) => void;
 }) {
     return (
         <div className="w-full flex flex-col items-center py-10">
@@ -35,14 +37,15 @@ export default function CurrencyCarousel({
                         {followedCurrencies.map((currency) => (
                             <SwiperSlide key={currency}>
                                 <motion.div
-                                    className="h-[180px] bg-[#1A2E40] flex justify-center items-center rounded-lg text-center"
+                                    className="h-[180px] bg-[#1A2E40] flex justify-center items-center rounded-lg text-center cursor-pointer"
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ type: "spring", stiffness: 300, damping: 20, duration: 0.5 }}
                                     layout
+                                    onClick={() => onCurrencySelect(currency)}
                                 >
                                     <h1 className="text-white text-2xl font-semibold flex items-center justify-center h-full w-full">
-                                        {currency}
+                                        {currency.toUpperCase()}
                                     </h1>
                                 </motion.div>
                             </SwiperSlide>
@@ -53,4 +56,3 @@ export default function CurrencyCarousel({
         </div>
     );
 }
-

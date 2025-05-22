@@ -1,24 +1,72 @@
 import Chart from "@/components/Dashboard/Chart.tsx";
-import {useState} from "react";
+import { useEffect, useState } from "react";
 
 interface CurrencyStatsProps {
     title: string;
 }
 
-const sampleData = [
-    { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
-    { name: 'Page B', uv: 3000, pv: 1398, amt: 2210 },
-    { name: 'Page C', uv: 2000, pv: 9800, amt: 2290 },
-    { name: 'Page D', uv: 2780, pv: 3908, amt: 2000 },
-    { name: 'Page E', uv: 1890, pv: 4800, amt: 2181 },
-    { name: 'Page F', uv: 2390, pv: 3800, amt: 2500 },
-    { name: 'Page G', uv: 3490, pv: 4300, amt: 2100 },
-];
+async function fetchCurrencyData(currency: string, date?: string, startDate?: string, endDate?: string) {
+    try {
+        let url = "";
+        if (date) {
+            url = `http://localhost:3001/currency/${currency}?date=${date}`;
+        } else if (startDate && endDate) {
+            url = `http://localhost:3001/currency/${currency}?startDate=${startDate}&endDate=${endDate}`;
+        } else {
+            url = `http://localhost:3001/currency/${currency}`;
+        }
 
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        return await response.json();
+    } catch (error) {
+        console.error('Fetch error:', error);
+        return null;
+    }
+}
 
 export default function CurrencyStats({ title }: CurrencyStatsProps) {
-
     const [period, setPeriod] = useState<string>("1w");
+    const [chartData, setChartData] = useState<any[]>([]);
+
+    const periodInDays: Record<string, number> = {
+        "1w": 7,
+        "1m": 30,
+        "3m": 90,
+        "1y": 365,
+    };
+
+    const formatDate = (date: Date) => date.toISOString().split("T")[0];
+
+    useEffect(() => {
+        if (!title) return;
+
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - periodInDays[period]);
+
+        async function getData() {
+            const data = await fetchCurrencyData(
+                title,
+                undefined,
+                formatDate(startDate),
+                formatDate(endDate)
+            );
+
+            if (!data || !Array.isArray(data.rates)) return;
+
+            const tempChartData = data.rates.map((rate: any) => ({
+                name: rate.date,
+                bid: rate.bid,
+                ask: rate.ask
+            }));
+
+            setChartData(tempChartData);
+        }
+
+        getData();
+    }, [title, period]);
 
     const periods = [
         { label: "1 Week", value: "1w" },
@@ -26,8 +74,6 @@ export default function CurrencyStats({ title }: CurrencyStatsProps) {
         { label: "3 Months", value: "3m" },
         { label: "1 Year", value: "1y" },
     ];
-
-    const userDate = new Date();
 
     return (
         <div className="w-[70%] max-h-full bg-[#1A2E40] rounded-[15px] mt-4 mb-4 ml-12 flex flex-col">
@@ -43,7 +89,7 @@ export default function CurrencyStats({ title }: CurrencyStatsProps) {
                     ))}
                 </select>
             </div>
-            <Chart data={sampleData} />
+            <Chart data={chartData} />
         </div>
-    )
+    );
 }

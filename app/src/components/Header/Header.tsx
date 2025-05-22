@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Button from '../Button';
 import Navbar from './Navbar';
 import Search from './Search';
+import Profile from './Profile';
 import logo from '../../../public/logo.svg';
 
 export default function Header({ isAuthenticated }: { isAuthenticated: boolean }) {
@@ -13,23 +14,6 @@ export default function Header({ isAuthenticated }: { isAuthenticated: boolean }
     const router = useRouter();
 
     const pathname = usePathname();
-
-    const handleLogout = async () => {
-        try {
-            const response = await fetch("http://localhost:3001/auth/logout", {
-                method: "POST",
-                credentials: "include",
-            });
-
-            if (response.ok) {
-                router.push("/login");
-            } else {
-                console.error("Failed to log out");
-            }
-        } catch (err) {
-            console.error("Error during logout:", err);
-        }
-    };
 
     const handleLoginClick = () => {
         router.push('/login');
@@ -51,20 +35,7 @@ export default function Header({ isAuthenticated }: { isAuthenticated: boolean }
                 <Search />
 
                 {isAuthenticated ? (
-                    <div className="flex items-center space-x-4">
-                        <button
-                            onClick={() => console.log(isAuthenticated)}
-                            className="text-2xl text-primary px-4 py-2 rounded-lg"
-                        >
-                            Profile
-                        </button>
-                        <button
-                            onClick={handleLogout}
-                            className="text-2xl text-red-500 px-4 py-2 rounded-lg"
-                        >
-                            Logout
-                        </button>
-                    </div>
+                    <Profile />
                 ) : (
                     <Button onClick={handleLoginClick} text="Login" className="text-2xl text-primary px-4 py-2 rounded-lg" />
                 )}

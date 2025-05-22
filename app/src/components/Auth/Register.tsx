@@ -104,7 +104,6 @@ export default function Register() {
                         onClick={handleSignUp}
                         text={submitting ? "Registering..." : "Register"}
                         className="text-6xl text-primary px-4 py-2 rounded-[15px] border border-black"
-                        disabled={submitting}
                     />
                 </div>
             </div>

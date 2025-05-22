@@ -44,6 +44,26 @@ export default function Dashboard() {
             if (response.ok) {
                 const data = await response.json();
                 setSelectedCurrency(data.baseCurrency);
+
+                setFollowedCurrencies((prev) => {
+                    if (!prev.includes(data.baseCurrency)) {
+                        fetch('http://localhost:3001/user/followed', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                            },
+                            credentials: 'include',
+                            body: JSON.stringify({ currency: data.baseCurrency }),
+                        }).then(() => {
+                            fetchFollowedCurrencies();
+                        }).catch((err) => {
+                            console.error('Error following base currency', err);
+                        });
+                        return [...prev, data.baseCurrency];
+                    }
+                    return prev;
+                });
             } else {
                 console.error('Error fetching default currency');
             }
@@ -60,11 +80,15 @@ export default function Dashboard() {
         fetchDefaultCurrency();
     }, []);
 
+    useEffect(() => {
+        console.log("Selected currency:", selectedCurrency);
+    }, [selectedCurrency]);
+
     return (
         <div className="flex flex-col">
 
             {followedCurrencies.length > 0 ? (
-                <Carousel followedCurrencies={followedCurrencies} />
+                <Carousel followedCurrencies={followedCurrencies} onCurrencySelect={setSelectedCurrency} />
             ) : (
                 <div className="w-full flex flex-col items-center py-10">
                     <h1 className="text-center text-4xl font-bold mb-6 text-white">
